@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:ws="http://jax-ws.dev.java.net/spring/core"
+       xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/jee
+                    http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+                     http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx.xsd
+             http://jax-ws.dev.java.net/spring/core http://jax-ws.java.net/spring/core.xsd
+http://jax-ws.dev.java.net/spring/servlet http://jax-ws.java.net/spring/servlet.xsd">
+
+    <mvc:resources mapping="/resources/**"
+                   location="/resources/"/>
+    <context:component-scan base-package="com.epam.training"/>
+    <context:annotation-config/>
+    <mvc:annotation-driven/>
+    <jee:jndi-lookup id="dataSource"
+                     jndi-name="jdbc/oralocal"
+                     expected-type="javax.sql.DataSource"
+                     resource-ref="true"/>
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <bean id="jpaVendorAdapter"
+          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="ORACLE"/>
+        <property name="showSql" value="true"/>
+        <property name="generateDdl" value="false"/>
+        <property name="databasePlatform"
+                  value="org.hibernate.dialect.Oracle10gDialect"/>
+    </bean>
+
+    <bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+    <bean id="emf" class=
+            "org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <property name="jpaDialect" ref="jpaDialect"/>
+        <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>
+        <property name="persistenceUnitName" value="defaultPersistenceUnit"/>
+        <property name="loadTimeWeaver">
+            <bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver"/>
+        </property>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory"
+                  ref="emf"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaDialect" ref="jpaDialect"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+
+
+    <!--<bean id="myServiceProxy" class="org.springframework.remoting.jaxws.JaxWsPortProxyFactoryBean">-->
+    <!--<property name="serviceInterface" value="com.epam.training.MyService"/>-->
+    <!--<property name="wsdlDocumentUrl" value="http://localhost:9080/JAX-WSSpringWeb/MyService?wsdl"/>-->
+    <!--<property name="namespaceUri" value="http://training.epam.com/"/>-->
+    <!--<property name="serviceName" value="MyService"/>-->
+    <!--<property name="endpointAddress" value="http://localhost:9080/JAX-WSSpringWeb/MyService"/>-->
+    <!--<property name="portName" value="MyServicePort"/>-->
+    <!--</bean>-->
+
+</beans>
